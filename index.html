@@ -3,210 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMPA POA - Portal do Servidor</title>
+    <title>Sindicato Online | Premium Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --simpa-red: #cc0000; }
-        body { 
-            background-color: #e5e7eb; /* Fundo cinza para destacar o container no PC */
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        :root { --brand: #1e40af; }
+        body { background-color: #0f172a; font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; margin: 0; }
         
-        /* Container Responsivo Principal */
-        .app-shell {
-            max-width: 500px; /* Largura ideal para simular App no PC */
-            margin: 0 auto;
-            background-color: #f9fafb;
-            min-height: 100vh;
-            box-shadow: 0 0 50px rgba(0,0,0,0.1);
-            position: relative;
-        }
-
-        /* Ajuste para telas grandes (PC) */
-        @media (min-width: 1024px) {
-            .app-shell {
-                max-width: 900px; /* Expande um pouco no PC para ser um portal */
-                margin: 20px auto;
-                min-height: calc(100vh - 40px);
-                border-radius: 30px;
-            }
-        }
-
-        .bg-simpa { background-color: var(--simpa-red); }
-        .text-simpa { color: var(--simpa-red); }
-        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); }
+        .app-shell { max-width: 500px; margin: 0 auto; background: #ffffff; height: 100vh; display: flex; flex-direction: column; position: relative; }
+        @media (min-width: 1024px) { .app-shell { max-width: 900px; margin: 20px auto; height: calc(100vh - 40px); border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); } }
         
-        .news-card:hover { transform: translateY(-3px); transition: all 0.3s; }
-        .tab-active { color: var(--simpa-red) !important; font-weight: 800; border-bottom: 3px solid var(--simpa-red); }
-        .hidden-view { display: none; }
+        /* Sistema de Views Blindado - Força o display none em tudo exceto na ativa */
+        .view { display: none !important; height: 100%; width: 100%; flex-direction: column; overflow-y: auto; }
+        .view.active { display: flex !important; }
         
-        /* Animação suave entre telas */
-        .view-animate { animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .input-style { width: 100%; padding: 16px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 20px; outline: none; transition: 0.2s; }
+        .input-style:focus { border-color: var(--brand); background: white; box-shadow: 0 0 0 4px rgba(30,64,175,0.05); }
+        
+        .tab-active { color: var(--brand) !important; font-weight: 800; border-top: 3px solid var(--brand); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .btn-shortcut { transition: all 0.2s; }
+        .btn-shortcut:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-    <div class="app-shell flex flex-col">
+    <div id="login-screen" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-8 transition-all duration-500">
+        <div class="w-full max-w-sm space-y-8">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-blue-700 rounded-3xl flex items-center justify-center mx-auto shadow-2xl mb-6 rotate-3">
+                    <i class="fa-solid fa-users-gear text-white text-4xl"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tighter">Sindicato <span class="text-blue-700">Online</span></h1>
+                <p class="text-slate-400 font-medium text-sm mt-2">Plataforma Unificada de Gestão</p>
+            </div>
+
+            <div class="space-y-3">
+                <input type="text" placeholder="CPF ou Matrícula" class="input-style">
+                <input type="password" placeholder="Senha" class="input-style">
+                <button onclick="realizarLogin()" class="w-full py-4 bg-blue-700 text-white font-bold rounded-2xl shadow-lg hover:bg-blue-800 transition active:scale-95">Entrar no Sistema</button>
+            </div>
+
+            <div class="relative flex py-4 items-center">
+                <div class="flex-grow border-t border-slate-100"></div>
+                <span class="flex-shrink mx-4 text-slate-300 text-[10px] font-black uppercase">Ou acessar com</span>
+                <div class="flex-grow border-t border-slate-100"></div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="realizarLogin()" class="flex items-center justify-center py-4 border border-slate-100 rounded-2xl hover:bg-slate-50 transition"><img src="https://www.google.com/favicon.ico" class="w-5 h-5"></button>
+                <button onclick="realizarLogin()" class="flex items-center justify-center py-4 border border-slate-100 rounded-2xl hover:bg-slate-50 transition text-blue-600"><i class="fa-brands fa-facebook text-xl"></i></button>
+                <button onclick="realizarLogin()" class="flex items-center justify-center py-4 border border-slate-100 rounded-2xl hover:bg-slate-50 transition text-black"><i class="fa-brands fa-apple text-xl"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content" class="app-shell hidden">
         
-        <header class="glass sticky top-0 z-50 border-b border-gray-200 px-6 py-4 flex justify-between items-center rounded-t-[30px] lg:rounded-t-[30px]">
-            <div class="flex items-center space-x-3">
-                <div class="bg-simpa text-white w-10 h-10 rounded-xl flex items-center justify-center font-black shadow-lg">S</div>
+        <header class="p-6 flex justify-between items-center border-b border-slate-50 bg-white sticky top-0 z-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center text-white font-black">SO</div>
                 <div>
-                    <h1 class="text-xl font-black tracking-tighter text-gray-800">SIMPA <span class="text-simpa text-sm">DIGITAL</span></h1>
-                    <p class="text-[9px] font-bold text-gray-400 uppercase hidden md:block">Sindicato dos Municipários de Porto Alegre</p>
+                    <h2 class="text-xs font-black text-slate-800 uppercase leading-none">Carlos Alberto</h2>
+                    <span class="text-[10px] text-green-500 font-bold uppercase">● Online</span>
                 </div>
             </div>
-            <div class="flex items-center space-x-6">
-                <nav class="hidden md:flex space-x-6 text-sm font-bold text-gray-500 uppercase tracking-tighter">
-                    <a href="#" onclick="navegar('home')" class="hover:text-simpa transition">Notícias</a>
-                    <a href="#" onclick="navegar('denuncia')" class="hover:text-simpa transition">Denúncias</a>
-                    <a href="#" class="hover:text-simpa transition">Editais</a>
-                </nav>
-                <div class="flex items-center space-x-3 border-l pl-6">
-                    <i class="fa-solid fa-bell text-gray-400 cursor-pointer hover:text-simpa"></i>
-                    <img src="https://ui-avatars.com/api/?name=Servidor+Municipario&background=cc0000&color=fff" class="w-8 h-8 rounded-full ring-2 ring-gray-100">
-                </div>
-            </div>
+            <button onclick="logout()" class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center"><i class="fa-solid fa-power-off"></i></button>
         </header>
 
-        <main class="flex-1 p-6 space-y-8">
+        <main class="flex-1 overflow-hidden relative">
 
-            <section id="view-home" class="view-animate space-y-8">
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="relative h-64 rounded-[2.5rem] overflow-hidden shadow-xl group cursor-pointer">
-                        <img src="https://images.unsplash.com/photo-1573163063955-528eb38006e2?q=80&w=800&auto=format&fit=crop" class="absolute w-full h-full object-cover group-hover:scale-105 transition duration-700 brightness-[0.4]">
-                        <div class="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/90 to-transparent">
-                            <span class="bg-yellow-400 text-black text-[10px] font-black px-2 py-1 rounded mb-3 w-fit">ASSEMBLEIA GERAL</span>
-                            <h2 class="text-2xl font-black text-white leading-tight">Campanha Salarial 2026: Servidores pedem 15% de reposição.</h2>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div onclick="navegar('carteirinha')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:bg-gray-50 cursor-pointer transition">
-                            <i class="fa-solid fa-id-card text-3xl text-simpa mb-3"></i>
-                            <span class="font-black text-xs text-gray-700 uppercase">Carteirinha</span>
-                        </div>
-                        <div onclick="navegar('denuncia')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:bg-gray-50 cursor-pointer transition">
-                            <i class="fa-solid fa-handshake-angle text-3xl text-orange-500 mb-3"></i>
-                            <span class="font-black text-xs text-gray-700 uppercase">Denunciar</span>
-                        </div>
-                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:bg-gray-50 cursor-pointer transition">
-                            <i class="fa-solid fa-gavel text-3xl text-blue-600 mb-3"></i>
-                            <span class="font-black text-xs text-gray-700 uppercase">Jurídico</span>
-                        </div>
-                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center hover:bg-gray-50 cursor-pointer transition">
-                            <i class="fa-solid fa-percent text-3xl text-green-600 mb-3"></i>
-                            <span class="font-black text-xs text-gray-700 uppercase">Convênios</span>
-                        </div>
+            <section id="view-home" class="view active p-6 space-y-6 bg-white">
+                <div class="relative h-48 rounded-[2.5rem] overflow-hidden shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent p-6 flex flex-col justify-end">
+                        <span class="bg-blue-600 text-white text-[9px] font-black px-3 py-1 rounded-full w-fit mb-2 uppercase tracking-tighter">Comunicado</span>
+                        <h2 class="text-lg font-bold text-white leading-tight">Assembleia Geral marcada para amanhã às 18h no auditório principal.</h2>
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <h3 class="text-xl font-black text-gray-800 tracking-tighter uppercase">Fique por dentro</h3>
-                        <button class="text-xs font-bold text-simpa">VER TODAS <i class="fa-solid fa-arrow-right"></i></button>
-                    </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="navegar('socio')" class="btn-shortcut p-6 bg-slate-900 text-white rounded-[2rem] flex flex-col items-center gap-2">
+                        <i class="fa-solid fa-id-card text-2xl"></i>
+                        <span class="text-[10px] font-black uppercase">Sócio</span>
+                    </button>
+                    <button onclick="navegar('convenios')" class="btn-shortcut p-6 bg-amber-50 text-amber-600 rounded-[2rem] border border-amber-100 flex flex-col items-center gap-2">
+                        <i class="fa-solid fa-percent text-2xl"></i>
+                        <span class="text-[10px] font-black uppercase">Convênios</span>
+                    </button>
+                    <button onclick="navegar('chat')" class="btn-shortcut p-6 bg-green-50 text-green-700 rounded-[2rem] border border-green-100 flex flex-col items-center gap-2">
+                        <i class="fa-solid fa-comments text-2xl"></i>
+                        <span class="text-[10px] font-black uppercase">Chat</span>
+                    </button>
+                    <button onclick="navegar('denuncia')" class="btn-shortcut p-6 bg-red-50 text-red-700 rounded-[2rem] border border-red-100 flex flex-col items-center gap-2">
+                        <i class="fa-solid fa-shield-virus text-2xl"></i>
+                        <span class="text-[10px] font-black uppercase">Apoio</span>
+                    </button>
+                </div>
+            </section>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-white p-4 rounded-3xl shadow-sm flex gap-4 news-card cursor-pointer border border-gray-50">
-                            <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200" class="w-20 h-20 rounded-2xl object-cover">
-                            <div class="flex flex-col justify-center">
-                                <span class="text-[9px] font-black text-simpa uppercase">Geral</span>
-                                <h4 class="font-bold text-sm leading-tight text-gray-800">SIMPA cobra cronograma de nomeações da última seleção.</h4>
-                            </div>
+            <section id="view-convenios" class="view p-6 space-y-6 bg-amber-50/30">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 uppercase italic">Benefícios</h2>
+                    <p class="text-[10px] text-amber-600 font-bold uppercase tracking-widest">Sua rede de descontos</p>
+                </div>
+                
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-5 text-slate-300"></i>
+                    <input type="text" id="inputBusca" onkeyup="filtrarConvenios()" placeholder="Buscar por nome ou categoria..." class="input-style pl-12 shadow-sm border-none bg-white">
+                </div>
+
+                <div id="lista-convenios" class="space-y-3">
+                    <div class="item-convenio p-5 bg-white border border-slate-100 rounded-[2rem] flex items-center gap-4 card-shadow" data-nome="Farmácia Saúde Plena">
+                        <div class="w-14 h-14 bg-green-100 text-green-700 rounded-2xl flex items-center justify-center font-black">40%</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-slate-800 text-sm leading-tight">Farmácia Saúde Plena</h4>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Medicamentos</p>
                         </div>
-                        <div class="bg-white p-4 rounded-3xl shadow-sm flex gap-4 news-card cursor-pointer border border-gray-50">
-                            <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=200" class="w-20 h-20 rounded-2xl object-cover">
-                            <div class="flex flex-col justify-center">
-                                <span class="text-[9px] font-black text-blue-500 uppercase">Educação</span>
-                                <h4 class="font-bold text-sm leading-tight text-gray-800">Reunião com a SMED debate plano de carreira dos professores.</h4>
-                            </div>
+                        <i class="fa-solid fa-chevron-right text-slate-200"></i>
+                    </div>
+                    <div class="item-convenio p-5 bg-white border border-slate-100 rounded-[2rem] flex items-center gap-4 card-shadow" data-nome="Ótica Visão Total">
+                        <div class="w-14 h-14 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center font-black">25%</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-slate-800 text-sm leading-tight">Ótica Visão Total</h4>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Exames e Armações</p>
                         </div>
+                        <i class="fa-solid fa-chevron-right text-slate-200"></i>
+                    </div>
+                    <div class="item-convenio p-5 bg-white border border-slate-100 rounded-[2rem] flex items-center gap-4 card-shadow" data-nome="PetShop Amigão">
+                        <div class="w-14 h-14 bg-orange-100 text-orange-700 rounded-2xl flex items-center justify-center font-black">15%</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-slate-800 text-sm leading-tight">PetShop Amigão</h4>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Serviços e Rações</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-200"></i>
                     </div>
                 </div>
             </section>
 
-            <section id="view-carteirinha" class="view-animate hidden-view space-y-6 flex flex-col items-center pt-8">
-                <div class="bg-simpa w-full max-w-sm p-10 rounded-[3rem] text-white shadow-2xl relative overflow-hidden transition hover:rotate-1">
-                    <div class="relative z-10 space-y-12">
+            <section id="view-chat" class="view bg-slate-50">
+                <div class="p-4 bg-white border-b flex items-center justify-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Chat em tempo real</span>
+                </div>
+                <div class="flex-1 p-6 space-y-4 overflow-y-auto no-scrollbar" id="chat-box">
+                    <div class="flex gap-2 items-end">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-black uppercase">ADM</div>
+                        <div class="bg-white p-4 rounded-2xl rounded-bl-none shadow-sm border border-slate-100 max-w-[80%] text-xs font-medium text-slate-600">
+                            Olá Carlos, como podemos ajudar o seu dia hoje?
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-white border-t flex items-center gap-3">
+                    <input type="text" id="chat-input" placeholder="Digite sua mensagem..." class="flex-1 bg-slate-100 border-none rounded-2xl px-5 py-4 text-sm outline-none">
+                    <button onclick="enviarMensagem()" class="w-12 h-12 rounded-2xl bg-blue-700 text-white shadow-lg flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="view-socio" class="view p-6 space-y-8 bg-white">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 uppercase italic">Identidade Digital</h2>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Sua credencial de sócio</p>
+                </div>
+
+                <div class="bg-slate-900 w-full p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden aspect-[1.6/1] flex flex-col justify-between">
+                    <div class="relative z-10">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h4 class="text-2xl font-black">Servidor Porto Alegre</h4>
-                                <p class="text-[10px] font-bold opacity-80 uppercase mt-2 tracking-widest">Sócio Ativo SIMPA</p>
+                                <h3 class="text-xl font-black uppercase tracking-tighter leading-tight">Carlos Alberto Silva</h3>
+                                <div class="bg-blue-600 text-[8px] font-black px-2 py-0.5 rounded-full w-fit mt-1">SÓCIO TITULAR</div>
                             </div>
-                        </div>
-                        <div class="flex justify-between items-end">
-                            <div class="space-y-1">
-                                <p class="text-sm font-bold">MATRÍCULA: 123456-7</p>
-                                <p class="text-[10px] opacity-60">VALIDADE: 12/2026</p>
+                            <div class="text-right">
+                                <p class="text-[8px] opacity-40 font-black">VALIDADE</p>
+                                <p class="text-xs font-bold">DEZ/2026</p>
                             </div>
-                            <div class="bg-white p-4 rounded-[1.5rem]"><i class="fa-solid fa-qrcode text-5xl text-simpa"></i></div>
                         </div>
                     </div>
-                    <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full"></div>
+                    <div class="relative z-10 flex justify-between items-end border-t border-white/10 pt-4">
+                        <div class="text-[8px] font-mono opacity-50 space-y-1">
+                            <p>MATRÍCULA: 1234567-0</p>
+                            <p>LOTAÇÃO: HPS PORTO ALEGRE</p>
+                        </div>
+                        <div class="bg-white p-2 rounded-xl"><i class="fa-solid fa-qrcode text-3xl text-slate-900"></i></div>
+                    </div>
+                    <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-600/20 rounded-full blur-[80px]"></div>
                 </div>
-                <button class="bg-simpa/10 text-simpa px-10 py-4 rounded-2xl font-black text-sm uppercase">Salvar no Google Wallet</button>
+
+                <div class="space-y-4">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Gestão de Dependentes</h4>
+                    <div class="p-6 border-2 border-dashed border-slate-200 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 text-slate-400 cursor-pointer hover:bg-slate-50 transition">
+                        <i class="fa-solid fa-user-plus text-xl"></i>
+                        <span class="text-xs font-bold">Cadastrar Novo Dependente</span>
+                    </div>
+                </div>
             </section>
 
-            <section id="view-denuncia" class="view-animate hidden-view max-w-lg mx-auto">
-                <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-gray-100 space-y-6">
-                    <h2 class="text-3xl font-black text-gray-800 leading-none">Canal de <br><span class="text-simpa">Vigilância</span></h2>
-                    <p class="text-sm text-gray-400 font-medium">Sua voz é fundamental para um serviço público digno. Envie seu relato anonimamente.</p>
-                    <input type="text" placeholder="Unidade de Lotação" class="w-full p-5 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-simpa outline-none transition">
-                    <textarea placeholder="O que deseja denunciar?" class="w-full p-5 bg-gray-50 rounded-2xl border-none h-40 focus:ring-2 focus:ring-simpa outline-none transition"></textarea>
-                    <button class="w-full py-5 bg-simpa text-white font-black rounded-2xl shadow-xl hover:shadow-red-200 transition">PROTOCOLAR DENÚNCIA</button>
+            <section id="view-denuncia" class="view p-6 space-y-6 bg-red-50/20">
+                <div class="bg-red-600 p-8 rounded-[3.5rem] text-white flex flex-col items-center text-center shadow-xl shadow-red-100">
+                    <i class="fa-solid fa-shield-halved text-4xl mb-3"></i>
+                    <h3 class="text-xl font-black uppercase">Canal de Apoio</h3>
+                    <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest leading-none">Sua voz protegida por sigilo absoluto</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Assunto da Ocorrência</label>
+                        <select class="input-style font-bold text-slate-600 bg-white">
+                            <option>Assédio / Pressão Psicológica</option>
+                            <option>Falta de Insumos / Materiais</option>
+                            <option>Escala Irregular</option>
+                            <option>Outros Assuntos</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Local do fato</label>
+                        <input type="text" placeholder="Ex: Ala C - HPS" class="input-style bg-white">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Relato Detalhado</label>
+                        <textarea placeholder="Descreva aqui o ocorrido..." class="input-style h-32 resize-none bg-white"></textarea>
+                    </div>
+                    <button class="w-full py-5 bg-red-600 text-white font-black rounded-[2rem] shadow-xl uppercase text-xs tracking-widest active:scale-95 transition">Protocolar Denúncia</button>
                 </div>
             </section>
 
         </main>
 
-        <nav id="bottom-nav" class="lg:hidden glass border-t border-gray-100 px-10 py-5 flex justify-between items-center fixed bottom-0 left-0 w-full z-50">
-            <button onclick="navegar('home')" id="nav-home" class="flex flex-col items-center tab-active">
-                <i class="fa-solid fa-newspaper text-xl"></i>
-                <span class="text-[9px] font-black uppercase mt-1">Início</span>
+        <nav class="bg-white border-t border-slate-50 px-4 py-4 flex justify-between items-center lg:rounded-b-[32px]">
+            <button onclick="navegar('home')" id="nav-home" class="flex flex-col items-center flex-1 tab-active text-slate-300">
+                <i class="fa-solid fa-house-chimney text-lg"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Início</span>
             </button>
-            <button onclick="navegar('carteirinha')" id="nav-carteirinha" class="flex flex-col items-center text-gray-400">
-                <i class="fa-solid fa-id-card-clip text-xl"></i>
-                <span class="text-[9px] font-black uppercase mt-1">Sócio</span>
+            <button onclick="navegar('convenios')" id="nav-convenios" class="flex flex-col items-center flex-1 text-slate-300">
+                <i class="fa-solid fa-tag text-lg"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Benefícios</span>
             </button>
-            <button onclick="navegar('denuncia')" id="nav-denuncia" class="flex flex-col items-center text-gray-400">
-                <i class="fa-solid fa-shield-halved text-xl"></i>
-                <span class="text-[9px] font-black uppercase mt-1">Denúncia</span>
+            <button onclick="navegar('chat')" id="nav-chat" class="flex flex-col items-center flex-1 text-slate-300">
+                <i class="fa-solid fa-comment-dots text-lg"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Chat</span>
+            </button>
+            <button onclick="navegar('socio')" id="nav-socio" class="flex flex-col items-center flex-1 text-slate-300">
+                <i class="fa-solid fa-id-card-clip text-lg"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Sócio</span>
+            </button>
+            <button onclick="navegar('denuncia')" id="nav-denuncia" class="flex flex-col items-center flex-1 text-slate-300">
+                <i class="fa-solid fa-hand-fist text-lg"></i>
+                <span class="text-[8px] font-black uppercase mt-1">Apoio</span>
             </button>
         </nav>
-        
-        <footer class="hidden lg:block p-8 bg-gray-50 rounded-b-[30px] border-t border-gray-200 text-center">
-            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">© 2026 SIMPA - Porto Alegre • Desenvolvido para Modernização Digital</p>
-        </footer>
-
     </div>
 
     <script>
+        function realizarLogin() {
+            const login = document.getElementById('login-screen');
+            login.style.opacity = '0';
+            setTimeout(() => {
+                login.classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                navegar('home');
+            }, 400);
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        // FUNÇÃO DE NAVEGAÇÃO BLINDADA
         function navegar(aba) {
-            // Esconde todas as views
-            document.querySelectorAll('main section').forEach(section => {
-                section.classList.add('hidden-view');
+            // 1. Desliga TODAS as views com força máxima
+            const todasAsViews = document.querySelectorAll('.view');
+            todasAsViews.forEach(v => {
+                v.classList.remove('active');
+                v.style.setProperty('display', 'none', 'important');
             });
             
-            // Mostra a view clicada
-            document.getElementById('view-' + aba).classList.remove('hidden-view');
+            // 2. Ativa apenas a escolhida
+            const viewAlvo = document.getElementById('view-' + aba);
+            viewAlvo.classList.add('active');
+            viewAlvo.style.setProperty('display', 'flex', 'important');
 
-            // Gerencia botões da navegação mobile
-            document.querySelectorAll('#bottom-nav button').forEach(btn => {
-                btn.classList.remove('tab-active');
-                btn.classList.add('text-gray-400');
+            // 3. Reseta a cor dos botões da Nav
+            document.querySelectorAll('nav button').forEach(b => {
+                b.classList.remove('tab-active');
+                b.classList.add('text-slate-300');
             });
-            const navBtn = document.getElementById('nav-' + aba);
-            if(navBtn) {
-                navBtn.classList.add('tab-active');
-                navBtn.classList.remove('text-gray-400');
-            }
+            
+            // 4. Marca o botão atual como ativo
+            const btnAtivo = document.getElementById('nav-' + aba);
+            btnAtivo.classList.add('tab-active');
+            btnAtivo.classList.remove('text-slate-300');
+        }
 
-            window.scrollTo(0,0);
+        // LÓGICA DE BUSCA NOS CONVÊNIOS
+        function filtrarConvenios() {
+            const termo = document.getElementById('inputBusca').value.toLowerCase();
+            const itens = document.querySelectorAll('.item-convenio');
+            itens.forEach(item => {
+                const nome = item.getAttribute('data-nome').toLowerCase();
+                item.style.display = nome.includes(termo) ? 'flex' : 'none';
+            });
+        }
+
+        // LÓGICA DE CHAT INTERATIVO
+        function enviarMensagem() {
+            const input = document.getElementById('chat-input');
+            const box = document.getElementById('chat-box');
+            if(input.value.trim() !== "") {
+                const msgUser = `<div class="bg-blue-700 text-white p-4 rounded-2xl rounded-br-none shadow-md max-w-[80%] self-end text-xs font-medium ml-auto">${input.value}</div>`;
+                box.innerHTML += msgUser;
+                input.value = "";
+                box.scrollTop = box.scrollHeight;
+            }
         }
     </script>
 </body>
